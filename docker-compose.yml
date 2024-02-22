@@ -1,0 +1,32 @@
+version: '3.8'
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  ms-one-data:
+    driver: local
+  kafka1-data:  # Add this volume definition
+    driver: local
+  kafka2-data:
+    driver: local
+
+
+services:
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 0.0.0.0:9092
+      KAFKA_CLUSTERS_0_SCHEMA_REGISTRY_URL: http://localhost:8085  # Updated
+      KAFKA_CLUSTERS_0_SCHEMA_REGISTRY_BASIC_AUTH_USERNAME: username  # Updated
+      KAFKA_CLUSTERS_0_SCHEMA_REGISTRY_BASIC_AUTH_PASSWORD: password  # Updated
+    volumes:
+      - ./kui/config.yml:/config.yml
+    ports:
+      - "5555:8080"  # Adjust port mapping if needed
+    networks:
+      - app_network
