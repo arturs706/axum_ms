@@ -17,6 +17,8 @@ jsonwebtoken = "9.2.0"
 chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1.0.195", features = ["derive"] }
 axum-macros = "0.4.1"
+rdkafka = "0.36.2"
+log = "0.4.20"
 
 
 [profile.release-lto]
