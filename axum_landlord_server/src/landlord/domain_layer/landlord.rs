@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
-// Define enum for landlord status
 #[derive(Debug, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "landlord_status_type")]
 pub enum LandlordStatus {
@@ -21,7 +20,7 @@ pub struct Landlord {
     pub phone: String,
     pub email: String,
     pub status: LandlordStatus,
-    pub donotdelete: String,
+    pub donotdelete: NaiveDateTime,
     pub createdby: String,
     pub createdat: NaiveDateTime,
 }

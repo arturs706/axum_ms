@@ -35,5 +35,28 @@ impl LandlordRepository {
             Err(e) => Err(e.to_string()),
         }
     }
+    pub async fn save(&self, landlord: Landlord) -> Result<Landlord, String> {
+        let record = sqlx::query_as::<_, Landlord>(
+            "INSERT INTO landlords (landlord_id, first_name, last_name, email, phone_number, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+        )
+        .bind(landlord.landlord_id)
+        .bind(landlord.title)
+        .bind(landlord.name)
+        .bind(landlord.surname)
+        .bind(landlord.company)
+        .bind(landlord.phone)
+        .bind(landlord.email)
+        .bind(landlord.status)
+        .bind(landlord.donotdelete)
+        .bind(landlord.createdby)
+        .bind(landlord.createdat)
+        .fetch_one(&self.app_state.database.db)
+        .await;
+        match record {
+            Ok(landlord) => Ok(landlord),
+            Err(e) => Err(e.to_string()),
+        }
+    }
 
 }
+
