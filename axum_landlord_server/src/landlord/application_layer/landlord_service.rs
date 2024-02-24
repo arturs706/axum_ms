@@ -37,9 +37,9 @@ pub async fn save_landlord(
     headers: HeaderMap,
     landlord: Json<Landlord>
 ) -> Result<Json<Landlord>, (StatusCode, String)> {
-    // let token = headers
-    //     .get("authorization")
-    //     .ok_or(CustomErrors::Unauthorized)?;
+    let token = headers
+        .get("authorization")
+        .ok_or(CustomErrors::Unauthorized)?;
     // let token = token.to_str().map_err(|_| CustomErrors::Unauthorized)?;
     // let user = jwt_repository::decode_token(token).await?;
     let landlord_repository = LandlordRepository::new().await;
