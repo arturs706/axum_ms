@@ -157,3 +157,47 @@ pub async fn login_user(
 
     Ok(response)
 }
+
+
+#[debug_handler]
+pub async fn register_user(headers: HeaderMap,request: Request<Body>) -> Result<Response<Full<Bytes>>, Infallible> {
+    let url = "http://localhost:10001/api/v1/users/register"
+        .parse::<hyper::Uri>()
+        .unwrap();
+    let host = url.host().expect("uri has no host");
+    let port = url.port_u16().unwrap_or(80);
+    let address = format!("{}:{}", host, port);
+    let stream = TcpStream::connect(address).await.unwrap();
+    let io = TokioIo::new(stream);
+    let (mut sender, conn) = hyper::client::conn::http1::handshake(io).await.unwrap();
+    tokio::task::spawn(async move {
+        if let Err(err) = conn.await {
+            println!("Connection failed: {:?}", err);
+        }
+    });
+    let authority = url.authority().unwrap().clone();
+    let bearer_token = headers.get("Authorization").unwrap().to_str().unwrap();
+    let req = Request::builder()
+        .method("POST")
+        .uri(url)
+        .header(hyper::header::CONTENT_TYPE, "application/json")
+        .header(hyper::header::HOST, authority.as_str())
+        .header("Authorization", format!("Bearer {}", bearer_token))
+        .body(request.into_body())
+        .unwrap();
+    let mut res = sender.send_request(req).await.unwrap();
+    let mut full_body = Vec::new();
+    while let Some(next) = res.frame().await {
+        let frame = next.unwrap();
+        if let Some(chunk) = frame.data_ref() {
+            full_body.extend_from_slice(chunk);
+        }
+    }
+    let response = Response::builder()
+        .status(StatusCode::OK)
+        .header("content-type", "application/json")
+        .body(Full::new(Bytes::from(full_body)))
+        .unwrap();
+
+    Ok(response)
+}

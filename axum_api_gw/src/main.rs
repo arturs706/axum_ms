@@ -60,8 +60,9 @@ pub(crate) fn new_app() -> Router {
         redis_pool: redis_pool_data.clone(),
     };
     Router::new()
-        .route("/api/v1", get(user_routes::fetchusershandler))
-        .route("/api/v1", post(user_routes::login_user))
+        .route("/api/v1/users", get(user_routes::fetchusershandler))
+        .route("/api/v1/users/login", post(user_routes::login_user))
+        .route("/api/v1/users/register", post(user_routes::register_user))
         .layer(cors)
         .layer(CookieManagerLayer::new())
         .layer(middleware::from_fn(mware::add_token))
