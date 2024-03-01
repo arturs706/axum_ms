@@ -1,5 +1,5 @@
 [package]
-name = "axum_image_upload"
+name = "axum_diary_server"
 version = "0.1.0"
 edition = "2021"
 
