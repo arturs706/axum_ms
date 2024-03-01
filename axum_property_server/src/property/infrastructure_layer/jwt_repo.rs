@@ -6,6 +6,7 @@ use crate::AppState;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AuthClaims {
+    iss: AuthType,
     exp: i64,
     iat: i64,
     role: Issuer,
