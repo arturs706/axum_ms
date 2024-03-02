@@ -1,16 +1,17 @@
 use serde::{Serialize, Deserialize};
+use sqlx::FromRow;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub enum PropertyStatus {
-    Available,
-    LetAgreed,
-    Let,
-    Inactive,
-    UnderValuation,
-}
+// #[derive(Debug, Serialize, Deserialize)]
+// pub enum PropertyStatus {
+//     Available,
+//     LetAgreed,
+//     Let,
+//     Inactive,
+//     UnderValuation,
+// }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct Property {
     pub property_id: Uuid,
     pub landlord: Uuid,
@@ -18,8 +19,6 @@ pub struct Property {
     pub branch: String,
     pub lead_staff: Option<String>,
     pub onthemarket: bool,
-    pub status: PropertyStatus,
-    pub dateavailable: Option<String>, // Change type to appropriate datetime type if needed
+    pub status: String,
+    pub dateavailable: Option<String>, 
 }
-
-// Implement any additional functionality or methods for the Property entity here
