@@ -8,6 +8,9 @@
 /axum_landlord_server/.env
 /axum_property_server/.env
 /axum_user_server/.env
+/frontend/target
+/frontend/dist
+/frontend/.env
 /kafka
 /target
 .env
