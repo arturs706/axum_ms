@@ -17,6 +17,10 @@ mod property {
     pub mod infrastructure_layer;
     pub mod presentation_layer;
 }
+use property::{
+    infrastructure_layer::route_auth_repo::auth_middleware,
+    presentation_layer::property_controller::create_router,
+};
 
 #[derive(Clone, Debug)]
 pub struct AppState {
