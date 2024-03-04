@@ -43,7 +43,7 @@ export default function Lettings() {
       method: "POST",
       body: formData,
       headers: {
-        "Authorization": "Bearer " + "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJBY2Nlc3MiLCJleHAiOjE3MDk1Nzk0MjYsImlhdCI6MTcwOTU3ODUyNiwicm9sZSI6IlVzZXIifQ.VJSIvvqCoWb-ffEAyJaBT8FP-vvInY_7CzP4pQhtULo",
+        "Authorization": "Bearer " + "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJBY2Nlc3MiLCJleHAiOjE3MDk1ODA0NzQsImlhdCI6MTcwOTU3OTU3NCwicm9sZSI6IlVzZXIifQ.NEiaJ2UhCpW0Pq_trklXvKWFu6NPzfb0rCvwlA3CHZE",
       },
       
     })
@@ -91,7 +91,9 @@ export default function Lettings() {
             <button onClick={() => removeImage(index)}>Remove</button>
           </div>
         ))}
-        <button onClick={uploadImages}>Submit</button>
+        {selectedImageFiles().length > 0 && (
+          <button onClick={uploadImages}>Upload</button>
+        )}
         </Suspense>
       )}
     </main>
