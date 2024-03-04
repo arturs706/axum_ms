@@ -2,10 +2,10 @@
 /axum_landlord_server/target
 /axum_property_server/target
 /axum_user_server/target
-/axum_image_upload/target
+/axum_diary_server/target
 
 /axum_api_gw/.env
-/axum_image_upload/.env
+/axum_diary_server/.env
 /axum_landlord_server/.env
 /axum_property_server/.env
 /axum_user_server/.env
