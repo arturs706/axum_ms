@@ -22,9 +22,7 @@ mod user {
 #[derive(Clone, Debug)]
 pub struct AppState {
     pub database: Database,
-    pub access_token: AccessToken,
     pub jwt_secret: JWTToken,
-    pub refresh_token: RefreshToken,
     pub pass_recovery_token: PasswordRecoveryToken,
 }
 
@@ -34,18 +32,8 @@ pub struct Database {
 }
 
 #[derive(Clone, Debug)]
-pub struct AccessToken {
-    pub access_token: String,
-}
-
-#[derive(Clone, Debug)]
 pub struct JWTToken {
     pub jwt_secret: String,
-}
-
-#[derive(Clone, Debug)]
-pub struct RefreshToken {
-    pub refresh_token: String,
 }
 
 #[derive(Clone, Debug)]
@@ -57,10 +45,6 @@ impl AppState {
     pub async fn new() -> Self {
         let database_url: String = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
         let jwt_secret: String = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-        let access_token_secret: String =
-            std::env::var("ACCESS_TOKEN_SECRET").expect("ACCESS_TOKEN_SECRET must be set");
-        let refresh_token_secret: String =
-            std::env::var("REFRESH_TOKEN_SECRET").expect("REFRESH_TOKEN_SECRET must be set");
         let reset_password_secret: String =
             std::env::var("RESET_PASSWORD_SECRET").expect("RESET_PASSWORD_SECRET must be set");
 
@@ -72,13 +56,7 @@ impl AppState {
 
         AppState {
             database: Database { db: pool },
-            access_token: AccessToken {
-                access_token: access_token_secret,
-            },
             jwt_secret: JWTToken { jwt_secret },
-            refresh_token: RefreshToken {
-                refresh_token: refresh_token_secret,
-            },
             pass_recovery_token: PasswordRecoveryToken {
                 pass_recovery_token: reset_password_secret,
             },

@@ -66,8 +66,8 @@ async fn main() {
         .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE]);
 
     let app = create_router()
-        .layer(cors)
-        .route_layer(middleware::from_fn(auth_middleware));
+        .layer(cors);
+        // .route_layer(middleware::from_fn(auth_middleware));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:10003")
         .await

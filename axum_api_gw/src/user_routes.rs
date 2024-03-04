@@ -126,7 +126,6 @@ pub async fn login_user(
 
     let authority = url.authority().unwrap().clone();
     let bearer_token = headers.get("Authorization").unwrap().to_str().unwrap();
-    //make this post request
     let req = Request::builder()
         .method("POST")
         .uri(url)
@@ -136,7 +135,6 @@ pub async fn login_user(
         .body(request.into_body())
         .unwrap();
     let mut res = sender.send_request(req).await.unwrap();
-    println!("{:?}", res);
     let mut full_body = Vec::new();
     while let Some(next) = res.frame().await {
         let frame = next.unwrap();
@@ -145,17 +143,29 @@ pub async fn login_user(
         }
     }
     let headers = res.headers().clone();
-    let access_token = headers.get("access_token").unwrap().to_str().unwrap();
-    let refresh_token = &headers.get("refresh_token").unwrap().to_str().unwrap();
-    cookies.add(Cookie::new("refresh_token", refresh_token.to_string()));
-    let response = Response::builder()
-        .status(StatusCode::OK)
-        .header("access_token", access_token)
-        .header("content-type", "application/json")
-        .body(Full::new(Bytes::from(full_body)))
-        .unwrap();
+    let access_token: Option<&http::HeaderValue> = headers.get("access_token");
+    match access_token {
+        Some(access_token) => {
+            let refresh_token = &headers.get("refresh_token").unwrap().to_str().unwrap();
+            cookies.add(Cookie::new("refresh_token", refresh_token.to_string()));
+            let response = Response::builder()
+                .status(StatusCode::OK)
+                .header("access_token", access_token)
+                .header("content-type", "application/json")
+                .body(Full::new(Bytes::from(full_body)))
+                .unwrap();
+        
+            Ok(response)
+        }
+        None => {
+            let response = Response::builder()
+                .status(StatusCode::UNAUTHORIZED)
+                .body(Full::new(Bytes::from(full_body)))
+                .unwrap();
+            Ok(response)
+        }
+    }
 
-    Ok(response)
 }
 
 

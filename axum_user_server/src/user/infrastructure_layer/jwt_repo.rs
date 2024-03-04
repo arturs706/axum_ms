@@ -92,7 +92,7 @@ pub async fn create_token(
     auth_type: &str,
 ) -> Result<String, jsonwebtoken::errors::Error> {
     let app_state = AppState::new().await;
-    let access_token_secret: String = app_state.access_token.access_token.clone();
+    let access_token_secret: String = app_state.jwt_secret.jwt_secret.clone();
     let access_secret = access_token_secret.as_bytes();
     let role = if user.username == "arturs" {
         Issuer::Admin

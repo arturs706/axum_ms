@@ -8,7 +8,7 @@ GET http://90.247.108.222:8181/api/v1/users
 GET http://localhost:8080/api/v1/users
 
 ###
-GET http://localhost:10000/api/v1
+GET http://90.243.14.148:9999/api/v1/users
 
 ###
 GET http://localhost:8181/api/v1/users
@@ -64,19 +64,26 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:10000/api/v1/login
+POST http://localhost:9999/api/v1/users/register
 Content-Type: application/json
 
 {
-    "username": "john_doe",
+    "name": "John Doe",
+    "username": "johndo2e_23",
+    "mob_phone": "1234567890",
+    "passwd": "Password1234!",
+    "acc_level": "trainee",
+    "status": "active"
+}
+
+###
+POST http://localhost:9999/api/v1/users/login
+Content-Type: application/json
+
+{
+    "username": "johndo2e_23",
     "passwd": "Hashed_password3!"
 }
 
 ###
-POST http://localhost:8080/api/v1/login
-Content-Type: application/json
-
-{
-    "username": "johndoe_23",
-    "passwd": "Password123!"
-}
+GET http://localhost:9999/api/v1/users

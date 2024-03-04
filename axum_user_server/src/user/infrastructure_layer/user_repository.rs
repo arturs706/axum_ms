@@ -96,10 +96,11 @@ impl UserRepository {
     }
 
     pub async fn login(&self, username: String, passwd: String) -> Result<StaffUser, CustomErrors> {
+      
         let record = sqlx::query_as::<_, StaffUser>(
-            "SELECT * FROM staff_users WHERE username = $1 AND passwd = $2",
+            "SELECT * FROM staff_users WHERE username = $1"
         )
-        .bind(username)
+        .bind(&username)
         .fetch_one(&self.app_state.database.db)
         .await;
         match record {

@@ -1,0 +1,25 @@
+/* @font-face {
+  font-family: "KRYLON";
+  src: url("../public/fonts/Krylon-Regular.woff2");
+} */
+
+:root {
+  --background-color: #F3F5FA;
+  --font-color: #0C0606; 
+} 
+
+html {
+  overflow: hidden;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: auto;
+  background-color: var(--background-color);
+  color: var(--font-color);
+  /* font-family: "KRYLON"; */
+  font-size: 12px;
+}
