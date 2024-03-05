@@ -43,8 +43,10 @@ export default function Lettings() {
       method: "POST",
       body: formData,
       headers: {
-        "Authorization": "Bearer " + "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJBY2Nlc3MiLCJleHAiOjE3MDk1ODA0NzQsImlhdCI6MTcwOTU3OTU3NCwicm9sZSI6IlVzZXIifQ.NEiaJ2UhCpW0Pq_trklXvKWFu6NPzfb0rCvwlA3CHZE",
+        "Authorization": "Bearer " + "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJBY2Nlc3MiLCJleHAiOjE3MDk2NjkwNjUsImlhdCI6MTcwOTY2ODE2NSwicm9sZSI6IlVzZXIifQ.5DmPNlFs1cvKLue4gU9SgWytTKBFaoFQvEn7IZNXhHQ",
+        "x-image-quantity": selectedImageFiles().length.toString(),
       },
+      
       
     })
     .then(response => {
@@ -83,7 +85,7 @@ export default function Lettings() {
         <Suspense fallback={<div class="loader">Loading...</div>}>
         <label class={styles.customfileupload}>
         <input type="file" accept=".png,.jpg,.jpeg,.avif,.jp2,.webp" multiple onChange={handleFileSelect}/>
-        Add Images
+        ADD IMAGES
       </label>
         {imagePreviews().map((preview, index) => (
           <div>

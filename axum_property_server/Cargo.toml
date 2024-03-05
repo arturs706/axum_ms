@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-crossbeam = "0.8.4"
+crossbeam = "0.8"
 axum = { version = "0.7.4", features = ["multipart"] }
 tokio = { version = "1.36.0", features = ["full"] }
 sqlx = {version = "0.7.3", features = ["runtime-tokio-native-tls", "postgres", "time", "chrono", "uuid", "bigdecimal"] }
@@ -25,3 +25,8 @@ multer = "3.0.0"
 tracing = "0.1.37"
 tracing-subscriber = "0.3.17"
 futures-util = "0.3.29"
+crossbeam-channel = "0.5.12"
+futures = "0.3.30"
+num_cpus = "1.16.0"
+signal-hook = "0.3.17"
+crossbeam-utils = "0.8.19"

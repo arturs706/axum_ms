@@ -1,0 +1,4 @@
+#POST
+###
+POST http://0.0.0.0:10003/api/v1/property/upload_images/crossbeam
+Content-Type: multipart/form-data; 

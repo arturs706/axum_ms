@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
@@ -20,5 +20,5 @@ pub struct Property {
     pub lead_staff: Option<String>,
     pub onthemarket: bool,
     pub status: String,
-    pub dateavailable: Option<String>, 
+    pub dateavailable: Option<String>,
 }

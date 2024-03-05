@@ -12,8 +12,8 @@
     background-color: #000000;
     color: #ffffff;
     cursor: pointer;
-    padding: 0.4rem;
-    border-radius: 1rem;
+    padding: 1rem;
+    border-radius: 0.1rem;
 }
 
 input[type="file"] {
