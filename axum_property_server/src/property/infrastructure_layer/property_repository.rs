@@ -37,7 +37,7 @@ impl PropertyRepository {
         }
     }
 
-    pub async fn add_image_urls(&self, id: Uuid, image_urls: Vec<String>) -> Result<(), String> {
+    pub async fn save_images(&self, id: Uuid, image_urls: Vec<String>) -> Result<(), String> {
         let table_record_id = sqlx::types::Uuid::from_u128(uuid::Uuid::new_v4().as_u128());
         let record = sqlx::query("INSERT INTO property_photos (property_photos_id, property_id, photo_urls) VALUES ($1, $2, $3)")
             .bind(table_record_id)
@@ -71,4 +71,5 @@ impl PropertyRepository {
             Err(e) => Err(e.to_string()),
         }
     }
+
 }

@@ -1,21 +1,18 @@
+use axum::{
+    extract::{Multipart, Path},
+    http::{HeaderMap, StatusCode},
+    Json,
+};
+
 use crate::property::{
     domain_layer::property::Property,
     infrastructure_layer::{
         custom_error_repo::CustomErrors, jwt_repo, property_repository::PropertyRepository,
     },
 };
-use axum::{
-    extract::{Multipart, Path},
-    http::{HeaderMap, StatusCode},
-    Json,
-};
 use axum_macros::debug_handler;
-use crossbeam::channel::*;
-use crossbeam_channel::{bounded, select, tick, Receiver};
-use image::{imageops::FilterType, DynamicImage};
-use signal_hook::consts::SIGINT;
-use signal_hook::iterator::Signals;
-use std::{fs::File, io::Write, path::Path as StdPath, thread, time::Instant};
+use crossbeam_channel::bounded;
+use std::sync::{Arc, Mutex};
 use tokio::fs as tfs;
 use uuid::Uuid;
 
@@ -73,6 +70,7 @@ pub async fn create_property(
 
 #[debug_handler]
 pub async fn upload_images(
+    Path(id): Path<Uuid>,
     headers: HeaderMap,
     mut payload: Multipart,
 ) -> Result<(StatusCode, String), (StatusCode, String)> {
@@ -85,47 +83,36 @@ pub async fn upload_images(
         .map_err(|_| CustomErrors::MissingCreds)
         .unwrap();
     let authtoken = token.replace("Bearer ", "");
-    let base_url: &str = "http://0.0.0.0:10003/api/v1/property/uploadedimg/"; // Replace with your actual server URL
-    let mut image_urls: Vec<String> = Vec::new();
 
     match jwt_repo::validate_token(&authtoken).await {
         Ok(_) => {
-            let start_time: std::time::Instant = std::time::Instant::now();
-
             if let Err(error) = tfs::create_dir_all("./uploadedimg/").await {
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     format!("Error creating directory: {}", error),
                 ));
             }
-
-            let content_length: usize = match headers.get("content-length") {
+            let image_qty: usize = match headers.get("x-image-quantity") {
                 Some(header_value) => header_value.to_str().unwrap_or("0").parse().unwrap(),
                 None => "0".parse().unwrap(),
             };
+            let mut image_url_vector: Vec<String> = Vec::with_capacity(image_qty as usize);
+            let base_url: &str = "http://0.0.0.0:10003/api/v1/property/uploadedimg/";
+            let start_time: std::time::Instant = std::time::Instant::now();
+            let dir_spawn: &str = "./uploadedimg/";
+            let (snd, rcv) = bounded(10);
 
-            //================================================================================================
-
-            //================================================================================================
-
-            let max_file_size: usize = 100_000_000;
-            let dir: &str = "./uploadedimg/";
-            println!("Content Length: {}", content_length);
-            if content_length > max_file_size {
-                return Err((StatusCode::BAD_REQUEST, "File too large".to_string()));
-            }
             while let Some(mut field) = payload
                 .next_field()
                 .await
                 .map_err(|error| (StatusCode::BAD_REQUEST, error.to_string()))?
-            {
+            {   
                 match field.content_type() {
                     Some("image/png") => "image/png".to_string(),
                     Some("image/jpeg") => "image/jpeg".to_string(),
                     Some("image/webp") => "image/webp".to_string(),
                     Some("image/avif") => "image/avif".to_string(),
                     _ => {
-                        tracing::error!("Invalid content type");
                         return Err((StatusCode::BAD_REQUEST, "Invalid content type".to_string()));
                     }
                 };
@@ -133,49 +120,51 @@ pub async fn upload_images(
                 let name = field
                     .name()
                     .map(ToString::to_string)
-                    .unwrap_or("name".to_owned());
-                let file_name = field
-                    .file_name()
-                    .map(ToString::to_string)
-                    .unwrap_or("file_name".to_owned());
-                let file_extension = match file_name.split('.').last() {
-                    Some(ext) => ext,
-                    None => {
-                        tracing::error!("No file extension found");
-                        return Err((
-                            StatusCode::BAD_REQUEST,
-                            "No file extension found".to_string(),
-                        ));
-                    }
-                };
-                let unique_file_name = format!("{}-{}.{}", name, Uuid::new_v4(), file_extension);
-                let file_path = format!("{}/{}", dir, unique_file_name);
-                let mut file = match File::create(&file_path) {
-                    Ok(file) => file,
-                    Err(error) => {
-                        return Err((
-                            StatusCode::INTERNAL_SERVER_ERROR,
-                            format!("Error opening file for writing: {}", error),
-                        ));
-                    }
-                };
+                    .unwrap_or_else(|| "name".to_owned());
 
+                let new_image_name = format!("{}-{}", name, Uuid::new_v4());
+                image_url_vector.push(format!("{}{}.avif", base_url, new_image_name));
+                let mut data = Vec::new();
                 while let Some(chunk) = field
                     .chunk()
                     .await
                     .map_err(|error| (StatusCode::BAD_REQUEST, error.to_string()))?
                 {
-                    file.write_all(&chunk)
-                        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error.to_string()))?;
+                    data.extend_from_slice(&chunk);
                 }
-                let new_path = handle_image_processing(file_path).await;
-                let full_url = format!("{}{}.webp", base_url, new_path);
-                image_urls.push(full_url);
+                if data.len() > 10 * 1024 * 1024 { 
+                    return Err((StatusCode::PAYLOAD_TOO_LARGE,format!("Image size exceeds 10 MB")));
+                }
+
+                let img_clone = Arc::new(Mutex::new(image::load_from_memory(&data).unwrap()));
+
+                let snd_clone = snd.clone();
+                let rcv_clone = rcv.clone();
+                tokio::spawn(async move {
+                    let resized_img = img_clone.lock().unwrap().resize(
+                        1920,
+                        1080,
+                        image::imageops::FilterType::Triangle,
+                    );
+                    snd_clone.send(resized_img).unwrap();
+                });
+                tokio::spawn(async move {
+                    let rcv_clone = rcv_clone.recv().unwrap();
+                    let img_path = format!("{}{}.avif", dir_spawn, new_image_name);
+                    let received_img_clone = rcv_clone.clone();
+                    received_img_clone.save(img_path).unwrap();
+                });
             }
             let elapsed_time = start_time.elapsed().as_millis();
-            println!("Elapsed time: {}", elapsed_time);
-            Ok((StatusCode::OK, "Images uploaded successfully".to_string()))
+            println!("{}", elapsed_time);
+            let property_repository = PropertyRepository::new().await;
+            match property_repository.save_images(id, image_url_vector).await {
+                Ok(_) => Ok((StatusCode::OK, "Images uploaded successfully".to_string())),
+                Err(e) => Err((StatusCode::BAD_REQUEST, e.to_string())),
+            }
         }
+        
+
         Err(e) => {
             println!("Access verify error: {:?}", e);
             match e.kind() {
@@ -186,26 +175,4 @@ pub async fn upload_images(
             }
         }
     }
-}
-
-async fn handle_image_processing(destination: String) -> String {
-    let uploaded_img: DynamicImage = image::open(&destination).unwrap();
-    let _ = tfs::remove_file(&destination).await.unwrap();
-    let file_name_without_extension = match StdPath::new(&destination).file_stem() {
-        Some(name) => name.to_string_lossy().into_owned(),
-        None => {
-            tracing::error!("No file name found");
-            return "No file name found".to_string();
-        }
-    };
-
-    let upload_dir = "./uploadedimg/";
-    let new_file_path = format!("{}{}.avif", upload_dir, file_name_without_extension);
-
-    uploaded_img
-        .resize_exact(1920, 1080, FilterType::Gaussian)
-        .save(&new_file_path)
-        .unwrap();
-
-    return file_name_without_extension;
 }
