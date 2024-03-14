@@ -15,6 +15,7 @@ use std::time::Duration;
 use tower_cookies::CookieManagerLayer;
 use tower_http::cors::CorsLayer;
 mod unit_tests;
+mod property_routes;
 
 type DeadpoolPool = Pool;
 
@@ -63,6 +64,8 @@ pub(crate) fn new_app() -> Router {
         .route("/api/v1/users", get(user_routes::fetchusershandler))
         .route("/api/v1/users/login", post(user_routes::login_user))
         .route("/api/v1/users/register", post(user_routes::register_user))
+        .route("/api/v1/properties", post(user_routes::register_user))
+
         .layer(cors)
         .layer(CookieManagerLayer::new())
         .layer(middleware::from_fn(mware::add_token))

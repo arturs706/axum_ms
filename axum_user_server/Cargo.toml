@@ -35,3 +35,4 @@ opt-level = 3
 
 [features]
 build-bindings = []
+# cargo run --profile release-lto

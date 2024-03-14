@@ -43,7 +43,7 @@ export default function Lettings() {
       method: "POST",
       body: formData,
       headers: {
-        "Authorization": "Bearer " + "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJBY2Nlc3MiLCJleHAiOjE3MDk2NjkwNjUsImlhdCI6MTcwOTY2ODE2NSwicm9sZSI6IlVzZXIifQ.5DmPNlFs1cvKLue4gU9SgWytTKBFaoFQvEn7IZNXhHQ",
+        "Authorization": "Bearer " + "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJBY2Nlc3MiLCJleHAiOjE3MTA0NDU1NDAsImlhdCI6MTcxMDQ0NDY0MCwicm9sZSI6IlVzZXIifQ.Fvbm-C7T_lqP2Xx0Yk1EkODER536P44aVWtPRzaWTec",
         "x-image-quantity": selectedImageFiles().length.toString(),
       },
       
